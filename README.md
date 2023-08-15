@@ -8,8 +8,8 @@
 - Delete A post ✔✔✔
 - Get a post ✔✔✔
 - Get all post ✔✔✔
-- Create comment
+- Create comment ✔✔✔
 - Like a post
 - Unlike a post
-- Follow a post
-- Unfollow a post
+- Follow a post ✔✔✔
+- Unfollow a post ✔✔✔

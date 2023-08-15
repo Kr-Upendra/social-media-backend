@@ -1,5 +1,6 @@
 import Post from "../models/postModel.js";
 import Comment from "../models/commentModel.js";
+import { findById } from "../utils/userFunction.js";
 
 const getAllPost = async (req, res) => {
   try {
@@ -123,7 +124,89 @@ const deletePost = async (req, res) => {
     res.status(500).json({
       status: "fail",
       message: "some error occured",
-      error: err,
+    });
+  }
+};
+
+const likePost = async (req, res) => {
+  try {
+    const authenticatedUserId = req.user.userId;
+    const postToLikeId = req.params.id;
+
+    const authenticatedUser = findById(authenticatedUserId);
+    const postToLike = await Post.findById(postToLikeId);
+
+    if (!authenticatedUser)
+      return res.status(401).json({
+        status: "fail",
+        message: "You are not logged in!",
+      });
+
+    if (!postToLike)
+      return res.status(404).json({
+        status: "fail",
+        message: "post does not exist!",
+      });
+
+    if (postToLike.likes.includes(authenticatedUserId))
+      return res.status(400).json({
+        status: "fail",
+        message: "You have already liked this post!",
+      });
+
+    postToLike.likes.push(authenticatedUserId);
+    await postToLike.save();
+
+    res.status(200).json({
+      status: "success",
+      message: `You liked ${postToLikeId} this post!`,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "fail",
+      message: "some error occured",
+    });
+  }
+};
+
+const unlikePost = async (req, res) => {
+  try {
+    const authenticatedUserId = req.user.userId;
+    const postToUnlikeId = req.params.id;
+
+    const authenticatedUser = findById(authenticatedUserId);
+    const postToUnlike = await Post.findById(postToUnlikeId);
+
+    if (!postToUnlike.likes.includes(authenticatedUserId))
+      return res.status(400).json({
+        status: "fail",
+        message: "You haven't liked this post, so you can't unlike this!",
+      });
+
+    if (!authenticatedUser)
+      return res.status(401).json({
+        status: "fail",
+        message: "You are not logged in!",
+      });
+
+    if (!postToUnlike)
+      return res.status(404).json({
+        status: "fail",
+        message: "post does not exist!",
+      });
+
+    const index = postToUnlike.likes.indexOf(authenticatedUserId);
+    postToUnlike.likes.splice(index, 1);
+    await postToUnlike.save();
+
+    res.status(200).json({
+      status: "success",
+      message: `You unliked ${postToUnlikeId} this post!`,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "fail",
+      message: "some error occured",
     });
   }
 };
@@ -133,4 +216,6 @@ export default {
   getAllPost,
   createPost,
   deletePost,
+  likePost,
+  unlikePost,
 };

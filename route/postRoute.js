@@ -8,5 +8,7 @@ router.route("/all_posts").get(postController.getAllPost); // Route to get all p
 router.route("/posts").post(postController.createPost); // Route to create a post
 router.route("/posts/:id").get(postController.getPost); // Route to get single post with given id
 router.route("/posts/:id").delete(postController.deletePost); // Route to delete a post with given id
+router.route("/like/:id").post(postController.likePost);
+router.route("/unlike/:id").post(postController.unlikePost);
 
 export { router };
