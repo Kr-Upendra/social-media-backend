@@ -92,7 +92,6 @@ const createPost = async (req, res) => {
     res.status(404).json({
       status: "fail",
       message: err.message,
-      error: err,
     });
   }
 };

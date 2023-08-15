@@ -4,7 +4,10 @@ import app from "./app.js";
 import { connectToDatabase } from "./dbConnection/connect.js";
 
 const port = process.env.PORT;
-const devDB = process.env.DEV_DATABASE;
+const devDB = process.env.PROD_DATABASE.replace(
+  "<password>",
+  process.env.PASSWORD
+);
 
 connectToDatabase(devDB);
 
