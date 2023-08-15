@@ -1,6 +1,7 @@
 import Post from "../models/postModel.js";
 import Comment from "../models/commentModel.js";
 import { findById } from "../utils/userFunction.js";
+import { AppError } from "../utils/AppError.js";
 
 const getAllPost = async (req, res) => {
   try {
@@ -40,15 +41,12 @@ const getAllPost = async (req, res) => {
   }
 };
 
-const getPost = async (req, res) => {
+const getPost = async (req, res, next) => {
   try {
     const postId = req.params.id;
     let post = await Post.findById(postId).select("-__v -userId");
-    if (!post)
-      return res.status(404).json({
-        status: "fail",
-        message: "post not found with given id!",
-      });
+
+    if (!post) return next(new AppError("post not found with given id!", 404));
 
     const comments = await Comment.find({ postId }).select(
       "-__v -userId -postId -_id"
@@ -99,21 +97,16 @@ const createPost = async (req, res) => {
   }
 };
 
-const deletePost = async (req, res) => {
+const deletePost = async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
-    if (!post)
-      return res.status(404).json({
-        status: "fail",
-        message: "post not found with given id!",
-      });
+    if (!post) return next(new AppError("post not found with given id!", 404));
 
     // Check if the current logged in user deleting his post some other user
     if (req.user.userId !== post.userId)
-      return res.status(401).json({
-        status: "fail",
-        message: "You don't have permission to perform this action!",
-      });
+      return next(
+        new AppError("You don't have permission to perform this action!", 401)
+      );
 
     await Post.findByIdAndDelete(req.params.id);
 
@@ -128,7 +121,7 @@ const deletePost = async (req, res) => {
   }
 };
 
-const likePost = async (req, res) => {
+const likePost = async (req, res, next) => {
   try {
     const authenticatedUserId = req.user.userId;
     const postToLikeId = req.params.id;
@@ -137,22 +130,12 @@ const likePost = async (req, res) => {
     const postToLike = await Post.findById(postToLikeId);
 
     if (!authenticatedUser)
-      return res.status(401).json({
-        status: "fail",
-        message: "You are not logged in!",
-      });
+      return next(new AppError("You are not logged in!", 401));
 
-    if (!postToLike)
-      return res.status(404).json({
-        status: "fail",
-        message: "post does not exist!",
-      });
+    if (!postToLike) return next(new AppError("post does not exist!", 404));
 
     if (postToLike.likes.includes(authenticatedUserId))
-      return res.status(400).json({
-        status: "fail",
-        message: "You have already liked this post!",
-      });
+      return next(new AppError("You have already liked this post!", 400));
 
     postToLike.likes.push(authenticatedUserId);
     await postToLike.save();
@@ -169,7 +152,7 @@ const likePost = async (req, res) => {
   }
 };
 
-const unlikePost = async (req, res) => {
+const unlikePost = async (req, res, next) => {
   try {
     const authenticatedUserId = req.user.userId;
     const postToUnlikeId = req.params.id;
@@ -177,23 +160,18 @@ const unlikePost = async (req, res) => {
     const authenticatedUser = findById(authenticatedUserId);
     const postToUnlike = await Post.findById(postToUnlikeId);
 
-    if (!postToUnlike.likes.includes(authenticatedUserId))
-      return res.status(400).json({
-        status: "fail",
-        message: "You haven't liked this post, so you can't unlike this!",
-      });
-
     if (!authenticatedUser)
-      return res.status(401).json({
-        status: "fail",
-        message: "You are not logged in!",
-      });
+      return next(new AppError("You are not logged in!", 401));
 
-    if (!postToUnlike)
-      return res.status(404).json({
-        status: "fail",
-        message: "post does not exist!",
-      });
+    if (!postToUnlike) return next(new AppError("post does not exist!", 404));
+
+    if (!postToUnlike.likes.includes(authenticatedUserId))
+      return next(
+        new AppError(
+          "You haven't liked this post, so you can't unlike this!",
+          400
+        )
+      );
 
     const index = postToUnlike.likes.indexOf(authenticatedUserId);
     postToUnlike.likes.splice(index, 1);

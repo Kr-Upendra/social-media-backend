@@ -3,9 +3,6 @@ import Comment from "../models/commentModel.js";
 const createComment = async (req, res) => {
   try {
     const { comment } = req.body;
-    console.log({ body: req.body });
-    console.log({ reqUser: req.user });
-    console.log({ params: req.params });
 
     const newComment = await Comment.create({
       comment,

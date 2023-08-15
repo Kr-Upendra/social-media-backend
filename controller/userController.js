@@ -1,14 +1,11 @@
 import { findById } from "../utils/userFunction.js";
+import { AppError } from "../utils/AppError.js";
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   const id = req.user.userId;
 
   const user = findById(id);
-  if (!user)
-    return res.status(401).json({
-      status: "fail",
-      message: "user not found with given id",
-    });
+  if (!user) return next(new AppError("user not found with given id", 404));
 
   res.status(200).json({
     status: "success",
@@ -16,7 +13,7 @@ const getUser = (req, res) => {
   });
 };
 
-const followUser = (req, res) => {
+const followUser = (req, res, next) => {
   try {
     const authenticatedUserId = req.user.userId;
     const userToFollowId = Number(req.params.id);
@@ -25,19 +22,13 @@ const followUser = (req, res) => {
     const userToFollow = findById(userToFollowId);
 
     if (!authenticatedUser || !userToFollow)
-      return res
-        .status(404)
-        .json({ status: "fail", message: "User not found!" });
+      return next(new AppError("User not found!", 404));
 
     if (authenticatedUserId === userToFollowId)
-      return res
-        .status(404)
-        .json({ status: "fail", message: "You can't follow yourself!" });
+      return next(new AppError("You can't follow yourself!", 400));
 
     if (authenticatedUser.following.includes(userToFollowId))
-      return res
-        .status(400)
-        .json({ status: "fail", message: "Already following this user!" });
+      return next(new AppError("Already following this user!", 400));
 
     authenticatedUser.following.push(userToFollowId);
     userToFollow.followers.push(authenticatedUserId);
@@ -55,7 +46,7 @@ const followUser = (req, res) => {
   }
 };
 
-const unFollowUser = (req, res) => {
+const unFollowUser = (req, res, next) => {
   try {
     const authenticatedUserId = req.user.userId;
     const userToUnfollowId = Number(req.params.id);
@@ -63,25 +54,14 @@ const unFollowUser = (req, res) => {
     const authenticatedUser = findById(authenticatedUserId);
     const userToUnfollow = findById(userToUnfollowId);
 
-    console.log({ authenticatedUser });
-    console.log({ userToUnfollow });
-
     if (!authenticatedUser || !userToUnfollow)
-      return res
-        .status(404)
-        .json({ status: "fail", message: "User not found!" });
+      return next(new AppError("User not found!", 404));
 
     if (authenticatedUserId === userToUnfollowId)
-      return res.status(404).json({
-        status: "fail",
-        message: "Sorry, you can't unfollow yourself!",
-      });
+      return next(new AppError("Sorry, you can't unfollow yourself!", 400));
 
     if (!authenticatedUser.following.includes(userToUnfollowId))
-      return res.status(400).json({
-        status: "fail",
-        message: "Sorry, you don't follow this user!",
-      });
+      return next(new AppError("Sorry, you don't follow this user!", 400));
 
     authenticatedUser.following.splice(
       authenticatedUser.following.indexOf(userToUnfollowId),
