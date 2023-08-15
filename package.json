@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "An assignment got from Reunion team. Where I need to build a backend for social media plateform",
   "main": "server.js",
+  "type": "module",
   "scripts": {
-    "test": "nodemon server.js"
+    "start": "nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -22,5 +23,16 @@
   "bugs": {
     "url": "https://github.com/Kr-Upendra/social-media-backend/issues"
   },
-  "homepage": "https://github.com/Kr-Upendra/social-media-backend#readme"
+  "homepage": "https://github.com/Kr-Upendra/social-media-backend#readme",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.1",
+    "mongoose": "^7.4.3",
+    "morgan": "^1.10.0",
+    "yup": "^1.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
 }
