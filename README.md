@@ -9,7 +9,7 @@
 - Get a post ✔✔✔
 - Get all post ✔✔✔
 - Create comment ✔✔✔
-- Like a post
-- Unlike a post
+- Like a post ✔✔✔
+- Unlike a post ✔✔✔
 - Follow a post ✔✔✔
 - Unfollow a post ✔✔✔
