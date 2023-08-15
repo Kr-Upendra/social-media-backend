@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 
 import { router as userRouter } from "./route/userRoute.js";
+import { router as postRouter } from "./route/postRoute.js";
 
 const app = express();
 
@@ -17,5 +18,13 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/", userRouter);
+app.use("/api/", postRouter);
+
+app.all("*", (req, res) => {
+  res.status(404).json({
+    status: "fail",
+    messag: `The requested ${req.originalUrl} not exist on this server!`,
+  });
+});
 
 export default app;

@@ -7,9 +7,18 @@ const postSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  craeteTime: {
+  craetedTime: {
     type: Date,
     default: Date.now,
+  },
+  likes: [
+    {
+      type: Number,
+    },
+  ],
+  userId: {
+    type: Number,
+    required: [true, "only authenticated user can create a post!"],
   },
 });
 
