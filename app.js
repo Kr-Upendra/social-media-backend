@@ -1,6 +1,8 @@
 import express from "express";
 import morgan from "morgan";
 
+import { router as userRouter } from "./route/userRoute.js";
+
 const app = express();
 
 app.use(express.json());
@@ -13,5 +15,7 @@ app.get("/", (req, res) => {
     message: "server started!",
   });
 });
+
+app.use("/api/", userRouter);
 
 export default app;
