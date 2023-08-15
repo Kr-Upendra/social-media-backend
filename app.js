@@ -3,6 +3,7 @@ import morgan from "morgan";
 
 import { router as userRouter } from "./route/userRoute.js";
 import { router as postRouter } from "./route/postRoute.js";
+import { router as commentRouter } from "./route/commentRoute.js";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/", userRouter);
 app.use("/api/", postRouter);
+app.use("/api/", commentRouter);
 
 app.all("*", (req, res) => {
   res.status(404).json({

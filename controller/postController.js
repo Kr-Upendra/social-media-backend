@@ -1,19 +1,34 @@
 import Post from "../models/postModel.js";
+import Comment from "../models/commentModel.js";
 
 const getAllPost = async (req, res) => {
   try {
-    const posts = await Post.find({ userId: req.user.userId }).sort({
-      createdTime: 1,
-    });
+    const posts = await Post.find({ userId: req.user.userId })
+      .sort({
+        createdTime: 1,
+      })
+      .select("-userId -__v");
 
-    posts.map((post) => {
-      post.userId = undefined;
-    });
+    const result = await Promise.all(
+      posts.map(async (post) => {
+        const comments = await Comment.find({ postId: post.id }).select(
+          "-__v -postId -_id"
+        );
+
+        const combinedData = {
+          ...post.toObject(),
+          comments: comments,
+          likes: post.likes.length,
+        };
+
+        return combinedData;
+      })
+    );
 
     res.status(200).json({
       status: "success",
       result: posts.length,
-      posts,
+      posts: result,
     });
   } catch (err) {
     res.status(500).json({
@@ -26,18 +41,27 @@ const getAllPost = async (req, res) => {
 
 const getPost = async (req, res) => {
   try {
-    console.log(req.params.id);
-
-    const post = await Post.findById(req.params.id);
+    const postId = req.params.id;
+    let post = await Post.findById(postId).select("-__v -userId");
     if (!post)
       return res.status(404).json({
         status: "fail",
         message: "post not found with given id!",
       });
 
+    const comments = await Comment.find({ postId }).select(
+      "-__v -userId -postId -_id"
+    );
+
+    const combineData = {
+      ...post.toObject(),
+      comments: comments,
+      likes: post.likes.length,
+    };
+
     res.status(200).json({
       status: "success",
-      post,
+      post: combineData,
     });
   } catch (err) {
     res.status(500).json({
