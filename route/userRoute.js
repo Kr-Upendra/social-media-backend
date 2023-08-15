@@ -3,7 +3,9 @@ import authController from "../controller/authController.js";
 import userController from "../controller/userController.js";
 const router = express.Router();
 
-router.route("/user").get(authController.protect, userController.getUser);
 router.route("/authenticate").post(authController.authenticate);
+router.use(authController.protect);
+router.route("/user").get(userController.getUser);
+router.route("/follow/:id").post(userController.followUser);
 
 export { router };

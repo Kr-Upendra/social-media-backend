@@ -7,3 +7,7 @@ export const findOne = (email) => {
 export const findById = (id) => {
   return dummyUsers.find((user) => user.id === id);
 };
+
+export const increaseFollowersAndFollowing = (followerId, followingId) => {
+  console.log(followerId, followingId);
+};
