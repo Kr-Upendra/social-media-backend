@@ -44,7 +44,57 @@ const followUser = (req, res) => {
 
     res.status(200).json({
       status: "success",
-      message: "You started following!",
+      message: `You started following ${userToFollowId}!`,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "fail",
+      message: "some error occured!",
+      error: err,
+    });
+  }
+};
+
+const unFollowUser = (req, res) => {
+  try {
+    const authenticatedUserId = req.user.userId;
+    const userToUnfollowId = Number(req.params.id);
+
+    const authenticatedUser = findById(authenticatedUserId);
+    const userToUnfollow = findById(userToUnfollowId);
+
+    console.log({ authenticatedUser });
+    console.log({ userToUnfollow });
+
+    if (!authenticatedUser || !userToUnfollow)
+      return res
+        .status(404)
+        .json({ status: "fail", message: "User not found!" });
+
+    if (authenticatedUserId === userToUnfollowId)
+      return res.status(404).json({
+        status: "fail",
+        message: "Sorry, you can't unfollow yourself!",
+      });
+
+    if (!authenticatedUser.following.includes(userToUnfollowId))
+      return res.status(400).json({
+        status: "fail",
+        message: "Sorry, you don't follow this user!",
+      });
+
+    authenticatedUser.following.splice(
+      authenticatedUser.following.indexOf(userToUnfollowId),
+      1
+    );
+    userToUnfollow.followers.splice(
+      userToUnfollow.followers.indexOf(authenticatedUserId),
+      1
+    );
+
+    res.status(200).json({
+      status: "success",
+      message: `${authenticatedUserId} unfollowed ${userToUnfollowId}!`,
     });
   } catch (err) {
     res.status(500).json({
@@ -58,4 +108,5 @@ const followUser = (req, res) => {
 export default {
   getUser,
   followUser,
+  unFollowUser,
 };

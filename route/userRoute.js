@@ -7,5 +7,6 @@ router.route("/authenticate").post(authController.authenticate);
 router.use(authController.protect);
 router.route("/user").get(userController.getUser);
 router.route("/follow/:id").post(userController.followUser);
+router.route("/unfollow/:id").post(userController.unFollowUser);
 
 export { router };
